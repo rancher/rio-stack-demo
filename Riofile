@@ -1,0 +1,49 @@
+services:
+    emoji-svc:
+        app: emoji-svc
+        version: v0
+        image: buoyantio/emojivoto-emoji-svc:v8
+        ports:
+        - 8080:8080/grpc,grpc
+        env:
+        - GRPC_PORT=8080
+        
+    voting-svc:
+        app: voting-svc
+        version: v0
+        image: buoyantio/emojivoto-voting-svc:v8
+        ports:
+        - 8080:8080/grpc,grpc
+        env:
+        - GRPC_PORT=8080
+        
+    web-svc:
+        app: web-svc
+        version: v0
+        image: buoyantio/emojivoto-web:v8
+        ports:
+            - 80:8080/http,web
+        env:
+        - WEB_PORT=8080
+        - EMOJISVC_HOST=emoji-svc:8080
+        - VOTINGSVC_HOST=voting-svc:8080
+        - INDEX_BUNDLE=dist/index_bundle.js 
+        
+    vote-bot:
+        app: vote-bot
+        version: v0
+        image: buoyantio/emojivoto-web:v8
+        command:
+        - emojivoto-vote-bot
+        env:
+        - WEB_HOST=web-svc:80
+configs:
+  sample-config:
+    sample-data: |-
+      Insert some sample-data here to configure your apps
+routers:
+  rio-emoji-router:
+    routes:
+    - match: {}
+      to:
+      - app: web-svc
